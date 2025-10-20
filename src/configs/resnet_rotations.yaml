@@ -1,11 +1,13 @@
 defaults:
-  - model: baseline
   - writer: wandb
   - metrics: accuracy
-  - datasets: mnist
+  - datasets: rotated_stl
   - dataloader: main
   - transforms: main
   - _self_
+  - model: resnet
+model:
+  n_class: 4
 optimizer:
   _target_: torch.optim.Adam
   lr: 3e-4

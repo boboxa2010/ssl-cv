@@ -7,28 +7,31 @@ class ResNetModel(nn.Module):
     Wrapper over ResNet18 from torchvision
     """
 
-    def __init__(self, input_channels, n_class, use_pretrained):
+    def __init__(
+            self,
+            n_class: int,
+            subsampling_kernel: int = 3,
+            subsampling_stride: int = 1,
+        ):
         """
         Args:
-            input_channels (int): number of input_channels.
             n_class (int): number of classes.
+            subsampling_kernel (int): kernel size of subsampling layer in resnet
+            subsampling_stride (int): stride of subsampling layer in resnet 
         """
         super().__init__()
 
-        if use_pretrained:
-            weights = torchvision.models.ResNet18_Weights
-        else:
-            weights = None
-        self.resnet = torchvision.models.resnet18(weights=weights)
-        self.resnet.conv1 = nn.Conv2d(
-            input_channels,
-            self.resnet.conv1.out_channels,
-            self.resnet.conv1.kernel_size,
-            self.resnet.conv1.stride,
-            self.resnet.conv1.padding,
-            bias=self.resnet.conv1.bias,
+        self.model = torchvision.models.resnet18()
+
+        self.model.conv1 = nn.Conv2d(
+            in_channels=self.model.conv1.in_channels,
+            out_channels=self.model.conv1.out_channels,
+            kernel_size=subsampling_kernel,
+            stride=subsampling_stride,
+            padding=(subsampling_kernel - 1) // 2,
         )
-        self.resnet.fc = nn.Linear(self.resnet.fc.in_features, n_class)
+
+        self.model.fc = nn.Linear(self.model.fc.in_features, n_class)
 
     def forward(self, img, **batch):
         """
@@ -39,7 +42,7 @@ class ResNetModel(nn.Module):
         Returns:
             output (dict): output dict containing logits.
         """
-        return {"logits": self.resnet(img)}
+        return {"logits": self.model(img)}
 
     def __str__(self):
         """
