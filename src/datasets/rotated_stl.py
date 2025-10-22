@@ -23,7 +23,7 @@ class RotatedSTLDataset(BaseDataset):
         Args:
             name (str): partition name
         """
-        index_path = ROOT_PATH / "data" / "stl" / name / "index.json"
+        index_path = ROOT_PATH / "data" / "rotated-stl" / name / "index.json"
 
         # each nested dataset class must have an index field that
         # contains list of dicts. Each dict contains information about
@@ -55,7 +55,7 @@ class RotatedSTLDataset(BaseDataset):
                 such as label and object path.
         """
         index = []
-        data_path = ROOT_PATH / "data" / "stl" / name
+        data_path = ROOT_PATH / "data" / "rotated-stl" / name
         data_path.mkdir(exist_ok=True, parents=True)
 
         transform = torchvision.transforms.ToTensor()
