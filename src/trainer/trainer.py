@@ -1,3 +1,5 @@
+import torch
+
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
 
@@ -34,18 +36,22 @@ class Trainer(BaseTrainer):
             metric_funcs = self.metrics["train"]
             self.optimizer.zero_grad()
 
-        outputs = self.model(**batch)
-        batch.update(outputs)
+        with torch.autocast(device_type=self.device, dtype=torch.float16, enabled=self.scaler.is_enabled()):
+            outputs = self.model(**batch)
+            batch.update(outputs)
 
-        all_losses = self.criterion(**batch)
-        batch.update(all_losses)
+            all_losses = self.criterion(**batch)
+            batch.update(all_losses)
 
         if self.is_train:
-            batch["loss"].backward()  # sum of all losses is always called loss
+            self.scaler.scale(batch["loss"]).backward()
+            
+            self.scaler.unscale_(self.optimizer)
             self._clip_grad_norm()
-            self.optimizer.step()
+
+            self.scaler.step(self.optimizer)
             if self.lr_scheduler is not None:
-                self.lr_scheduler.step()
+                self.scaler.step(self.lr_scheduler)
 
         # update metrics for each loss (in case of multiple losses)
         for loss_name in self.config.writer.loss_names:
