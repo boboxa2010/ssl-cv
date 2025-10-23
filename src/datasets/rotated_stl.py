@@ -33,13 +33,14 @@ class RotatedSTLDataset(BaseDataset):
         else:
             index = self._create_index(name)
 
+        self.angles = angles
+
         super().__init__(index, *args, **kwargs)
 
-        self.angles = angles
     
     def _generate_rotation(self, img):
         angle = int(np.random.choice(self.angles))
-        return rotate(img, angle), torch.tensor(self.angles.index(angle), dtype=torch.long)
+        return rotate(img, angle), self.angles.index(angle)
 
     def _create_index(self, name):
         """
@@ -81,7 +82,7 @@ class RotatedSTLDataset(BaseDataset):
             # parse dataset metadata and append it to index
             index.append({"path": str(save_path), "label": rotated_label})
 
-        shutil.rmtree(data_path / "stl-10-batches-py")  # remove
+        shutil.rmtree(data_path / "stl10_binary")  # remove
 
         # write index to disk
         write_json(index, str(data_path / "index.json"))
