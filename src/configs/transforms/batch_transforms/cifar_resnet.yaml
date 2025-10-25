@@ -3,7 +3,7 @@ train:
     _target_: torch.nn.Sequential # to apply several transforms sequentially
     _args_:
       - _target_: torchvision.transforms.v2.Resize
-        size: [224, 224]
+        size: [96, 96]
       - _target_: torchvision.transforms.v2.Normalize # pre-processing
         mean: [0.5, 0.5, 0.5]
         std: [0.5, 0.5, 0.5]
@@ -15,7 +15,7 @@ inference:
     _target_: torch.nn.Sequential # to apply several transforms sequentially
     _args_:
       - _target_: torchvision.transforms.v2.Resize
-        size: [224, 224]
+        size: [96, 96]
       - _target_: torchvision.transforms.v2.Normalize
         mean: [0.5, 0.5, 0.5]
         std: [0.5, 0.5, 0.5]
