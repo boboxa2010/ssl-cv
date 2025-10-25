@@ -1,11 +1,11 @@
 defaults:
+  - model: resnet
   - writer: wandb
   - metrics: accuracy
   - datasets: rotated_stl
   - dataloader: main
   - transforms: main
   - _self_
-  - model: resnet
 model:
   n_class: 4
 optimizer:

@@ -37,9 +37,8 @@ def main(config):
     # batch_transforms should be put on device
     dataloaders, batch_transforms = get_dataloaders(config, device)
 
-    # build model architecture, then print to console
+    # build model architecture
     model = instantiate(config.model).to(device)
-    logger.info(model)
 
     # get function handles of loss and metrics
     loss_function = instantiate(config.loss_function).to(device)
@@ -69,6 +68,8 @@ def main(config):
         batch_transforms=batch_transforms,
         skip_oom=config.trainer.get("skip_oom", True),
     )
+    # in order to print trainable parameters (after freezing)
+    logger.info(model)
 
     trainer.train()
 

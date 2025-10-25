@@ -145,6 +145,9 @@ class BaseTrainer:
 
         if config.trainer.get("from_pretrained") is not None:
             self._from_pretrained(config.trainer.get("from_pretrained"))
+        
+        if config.trainer.get("linear_probing", False):
+            self._setup_linear_probing()
 
     def train(self):
         """
@@ -552,6 +555,41 @@ class BaseTrainer:
         checkpoint = torch.load(pretrained_path, self.device)
 
         if checkpoint.get("state_dict") is not None:
-            self.model.load_state_dict(checkpoint["state_dict"])
+            state_dict = checkpoint["state_dict"]
         else:
-            self.model.load_state_dict(checkpoint)
+            state_dict = checkpoint
+        
+        if self.config.trainer.get("linear_probing", False):
+            state_dict = {
+                k: v for k, v in state_dict.items() 
+                if not k.startswith('fc.') 
+                and not k.startswith('model.fc.')
+            }
+            self.model.load_state_dict(state_dict, strict=False)
+        else:
+            self.model.load_state_dict(state_dict)
+
+    def _setup_linear_probing(self):
+        """
+        Setup linear probing by freezing all model parameters except
+        the final classifier layer.
+        """
+        if self.config.trainer.get("from_pretrained") is None:
+            raise ValueError(
+                "Linear probing requires 'trainer.from_pretrained' to be set"
+            )
+
+        for param in self.model.parameters():
+            param.requires_grad = False
+        
+        classifier_found = False
+        if hasattr(self.model, 'model') and hasattr(self.model.model, 'fc'):
+            for param in self.model.model.fc.parameters():
+                param.requires_grad = True
+            classifier_found = True
+        elif hasattr(self.model, 'fc'):
+            for param in self.model.fc.parameters():
+                param.requires_grad = True
+            classifier_found = True
+        if not classifier_found:
+            raise ValueError("Could not find classifier layer")

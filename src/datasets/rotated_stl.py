@@ -25,6 +25,8 @@ class RotatedSTLDataset(BaseDataset):
         """
         index_path = ROOT_PATH / "data" / "rotated-stl" / name / "index.json"
 
+        self.angles = angles
+
         # each nested dataset class must have an index field that
         # contains list of dicts. Each dict contains information about
         # the object, including label, path, etc.
@@ -32,8 +34,6 @@ class RotatedSTLDataset(BaseDataset):
             index = read_json(str(index_path))
         else:
             index = self._create_index(name)
-
-        self.angles = angles
 
         super().__init__(index, *args, **kwargs)
 
