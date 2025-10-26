@@ -17,12 +17,14 @@ train:
         p: 0.8
       - _target_: torchvision.transforms.v2.RandomGrayscale
         p: 0.2
-      - _target_: torchvision.transforms.v2.GaussianBlur
-        kernel_size: 23
-        sigma: [0.1, 2.0]
+      - _target_: torchvision.transforms.v2.RandomApply
+        transforms:
+          - _target_: torchvision.transforms.v2.GaussianBlur
+            kernel_size: 23
+            sigma: [0.1, 2.0]
         p: 0.5
       - _target_: torchvision.transforms.v2.RandomSolarize
-        threshold: 128
+        threshold: 0.5
         p: 0.1
       - _target_: torchvision.transforms.v2.RandomHorizontalFlip
         p: 0.5
