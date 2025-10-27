@@ -17,9 +17,9 @@ class LightlySingleView(nn.Module):
                 img_pil = to_pil_image(x[i])
                 views = self.transform(img_pil)
                 transformed.append(views[self.view_index].unsqueeze(0))
-            return torch.cat(transformed, dim=0)
+            return torch.cat(transformed, dim=0).to(x.device)
         else:
             img_pil = to_pil_image(x)
             views = self.transform(img_pil)
-            return views[self.view_index]
+            return views[self.view_index].to(x.device)
 
