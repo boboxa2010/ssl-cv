@@ -23,7 +23,7 @@ Follow these steps:
 
    ```bash
    # create env
-   conda create -n project_env python=PYTHON_VERSION
+   conda create -n project_env python=3.10
 
    # activate env
    conda activate project_env
